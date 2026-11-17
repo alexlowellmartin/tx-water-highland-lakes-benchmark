@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pond Outline Check</title>
+<style>
+:root {
+  --bg: #f7f7f5; --card: #ffffff; --ink: #1a1a19; --ink2: #5b5a56; --line: #e3e2dc;
+  --yes: #2a78d6; --partly: #b7791f; --no: #8a6a3b; --unsure: #898781; --flag: #c2410c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --card: #201f1e; --ink: #ecebe6; --ink2: #a9a79f; --line: #34332f;
+    --yes: #5b9be6; --partly: #e0a84a; --no: #c49a5e; --unsure: #8f8d86; --flag: #f08a4b;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1280px; margin: 0 auto; padding: 16px; }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; margin: 0; }
+.muted { color: var(--ink2); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 10px 0 16px; }
+.bar > div { height: 100%; background: var(--yes); width: 0; transition: width .2s; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+figure { margin: 0; }
+figure img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; border-radius: 6px; image-rendering: pixelated; background: #000; }
+figure.ctx img { image-rendering: auto; }
+figcaption { font-size: 13px; color: var(--ink2); margin-top: 4px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 12px 0; font-size: 14px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; align-items: center; }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  padding: 10px 16px; border-radius: 8px; cursor: pointer; min-width: 110px; }
+button:hover { border-color: var(--ink2); }
+button.yes { border-color: var(--yes); color: var(--yes); font-weight: 600; }
+button.partly { border-color: var(--partly); color: var(--partly); font-weight: 600; }
+button.no { border-color: var(--no); color: var(--no); font-weight: 600; }
+button.on { color: #fff; }
+button.yes.on { background: var(--yes); }
+button.partly.on { background: var(--partly); }
+button.no.on { background: var(--no); }
+button.unsure.on { background: var(--unsure); }
+label.flag { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border: 1px dashed var(--line); border-radius: 8px; cursor: pointer; }
+label.flag.on { border-color: var(--flag); color: var(--flag); font-weight: 600; }
+kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 4px; padding: 0 5px; margin-left: 6px; color: var(--ink2); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+input[type=text] { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); color: var(--ink); width: 160px; }
+details { margin-top: 16px; }
+details p, details li { color: var(--ink2); font-size: 14px; }
+#done, #review { display: none; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.tabs button { min-width: 0; padding: 8px 14px; }
+.tabs button.sel { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.rv-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 14px; color: var(--ink2); margin-bottom: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.tile { border: 2px solid var(--line); border-radius: 8px; padding: 6px; background: var(--card); }
+.tile img { width: 100%; aspect-ratio: 1; display: block; border-radius: 4px; image-rendering: pixelated; background: #000; cursor: zoom-in; }
+.tile .t-meta { font-size: 12px; color: var(--ink2); margin: 4px 0; display: flex; justify-content: space-between; }
+.tile .t-btns { display: flex; gap: 4px; }
+.tile .t-btns button { min-width: 0; flex: 1; padding: 4px 0; font-size: 12px; }
+.tile.changed { border-color: #d97706; }
+#zoom { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 10; padding: 16px; }
+#zoom .zin { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 1280px; width: 100%; }
+#zoom img { width: 100%; border-radius: 6px; image-rendering: pixelated; }
+#zoom img.c { image-rendering: auto; }
+#zoom p { grid-column: 1 / -1; color: #fff; margin: 0; text-align: center; }
+#zoom .z-btns { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.complete { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; background: #e8f3e8; color: #1f5f2a; font-size: 14px; display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .complete { background: #1f3323; color: #a8d9b0; } }
+@media (max-width: 760px) { .imgs, #zoom .zin { grid-template-columns: 1fr 1fr; } button { min-width: 0; flex: 1; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Stock tanks: is the outlined area water?</h1>
+    <div class="muted"><span id="count">0</span> / <span id="total">0</span> labelled · pond <span id="pos">1</span></div>
+  </header>
+  <p class="muted">Each cyan line is the water the automatic rule found in a USDA NAIP aerial photo. These outlines are the reference the satellite methods are scored against, so the question is whether the reference itself is right.</p>
+  <div class="bar"><div id="prog"></div></div>
+
+  <div class="card" id="work">
+    <div class="imgs">
+      <figure class="ctx"><img id="ctx" alt="Context"><figcaption>Context (magenta box = close-ups)</figcaption></figure>
+      <figure><img id="tc" alt="True colour"><figcaption>True colour, no outline</figcaption></figure>
+      <figure><img id="ol" alt="With outline"><figcaption><b style="color:#0aa">Cyan</b> = this pond's outline; yellow = other ponds</figcaption></figure>
+      <figure><img id="cir" alt="Colour infrared"><figcaption>Colour infrared: water dark or teal, plants red, bare ground pale</figcaption></figure>
+    </div>
+    <div class="meta"><span id="where"></span><span class="muted" id="prev"></span></div>
+    <div class="btns">
+      <button class="yes" data-l="yes">Water<kbd>W</kbd></button>
+      <button class="partly" data-l="partly">Partly water<kbd>P</kbd></button>
+      <button class="no" data-l="no">Not water<kbd>N</kbd></button>
+      <button class="unsure" data-l="unsure">Unsure<kbd>U</kbd></button>
+      <label class="flag" id="flag-l"><input type="checkbox" id="flag"> Outline misses water<kbd>M</kbd></label>
+      <button id="back">Back<kbd>←</kbd></button>
+      <button id="skip">Skip<kbd>→</kbd></button>
+    </div>
+  </div>
+
+  <div class="card" id="done"><p><strong>All ponds labelled.</strong> Skim them with
+    <em>Review labels</em>, then export the CSV below.</p></div>
+
+  <div class="card" id="review">
+    <div class="complete" id="rv-complete"></div>
+    <div class="tabs" id="rv-tabs"></div>
+    <div class="rv-opts">
+      <label>Image <select id="rv-img"><option value="ol">with outline</option><option value="cir">colour infrared</option><option value="tc">true colour</option></select></label>
+      <span>Click an image to see all four views. Changed tiles are outlined until you switch tab.</span>
+    </div>
+    <div class="grid" id="rv-grid"></div>
+    <div class="row"><button id="rv-done">I'm done reviewing</button>
+      <span class="muted">Marks the labels as final; the time goes into the exported CSV.</span></div>
+  </div>
+  <div id="zoom"><div class="zin" id="zoom-in"></div></div>
+
+  <div class="row">
+    <label class="muted" for="who">Your name or initials</label>
+    <input type="text" id="who" placeholder="e.g. AM">
+    <button id="export">Export CSV</button>
+    <button id="next-unl">Jump to next unlabelled</button>
+    <button id="rv-toggle">Review labels</button>
+  </div>
+
+  <details open>
+    <summary>How to label</summary>
+    <ul>
+      <li>Judge the area <strong>inside the cyan line</strong>, as it was on the photo date.</li>
+      <li><strong>Water</strong>: nearly all of it (roughly 90 %+) is open water, including muddy, green, algae-covered or sun-glinting water.</li>
+      <li><strong>Partly water</strong>: a real pond, but a sizeable part of the outlined area is not water (mud, vegetation, shadow, a dam, a road).</li>
+      <li><strong>Not water</strong>: little or none of it is water: a tree shadow, a dark field, a roof, a parking lot, a dry tank bed.</li>
+      <li><strong>Unsure</strong>: you honestly can't tell. Dropped from the numbers.</li>
+      <li><strong>Outline misses water</strong> (separate checkbox, optional): tick it if obvious water of the same pond lies <em>outside</em> the line. This is what drives area under-counts, which the first question can't see.</li>
+      <li>Colour infrared is usually decisive: water is dark or blue-green there, and anything red is growing plants.</li>
+      <li>Sizes and the AI's earlier answers are hidden on purpose. Progress saves in this browser. Export and save the file as <code>labels/ponds_naip_audit_human.csv</code>.</li>
+    </ul>
+  </details>
+</main>
+<script>
+const KEY = "hlw-ponds-audit-v1", OUTFILE = "ponds_naip_audit_human.csv";
+const NAMES = { yes: "Water", partly: "Partly", no: "Not water", unsure: "Unsure" };
+const ORDER = ["yes", "partly", "no", "unsure"];
+let PTS = [], i = 0, t0 = performance.now();
+let S = { labels: {}, who: "" };
+try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+const $ = id => document.getElementById(id);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const src = (id, k) => `pondchips/${id}_${k}.png`;
+let pendingFlag = false;
+
+function show() {
+  const n = Object.keys(S.labels).length;
+  $("count").textContent = n; $("total").textContent = PTS.length;
+  $("prog").style.width = (100 * n / PTS.length) + "%";
+  if (i >= PTS.length) { $("work").style.display = "none"; $("done").style.display = "block"; return; }
+  $("work").style.display = ""; $("done").style.display = "none";
+  const p = PTS[i];
+  $("pos").textContent = i + 1;
+  for (const k of ["ctx", "tc", "ol", "cir"]) $(k).src = src(p.id, k);
+  $("where").textContent = `${p.site.replace(/_/g, " ")} · photo ${p.date} · close-up ${p.crop_m} m across · pond #${p.id}`;
+  const cur = S.labels[p.id];
+  $("prev").textContent = cur ? "(already labelled; pressing a key changes it)" : "";
+  document.querySelectorAll("#work button[data-l]").forEach(b => b.classList.toggle("on", !!cur && cur.water === b.dataset.l));
+  pendingFlag = cur ? !!cur.misses : false;
+  $("flag").checked = pendingFlag; $("flag-l").classList.toggle("on", pendingFlag);
+  t0 = performance.now();
+  if (PTS[i + 1]) for (const k of ["ctx", "tc", "ol", "cir"]) new Image().src = src(PTS[i + 1].id, k);
+}
+function label(l) {
+  const p = PTS[i]; if (!p) return;
+  if (S.complete) { delete S.complete; showComplete(); }
+  S.labels[p.id] = { water: l, misses: pendingFlag, seconds: +((performance.now() - t0) / 1000).toFixed(1), at: new Date().toISOString() };
+  save(); i++; show();
+}
+function toggleFlag() {
+  pendingFlag = !pendingFlag; $("flag").checked = pendingFlag; $("flag-l").classList.toggle("on", pendingFlag);
+  const p = PTS[i], r = p && S.labels[p.id];
+  if (r) { r.misses = pendingFlag; delete S.complete; save(); showComplete(); }
+}
+$("flag").onchange = e => { pendingFlag = !e.target.checked; toggleFlag(); };
+function nextUnlabelled() { const j = PTS.findIndex(p => !S.labels[p.id]); i = j < 0 ? PTS.length : j; show(); }
+function exportCsv() {
+  const who = ($("who").value || "human").replace(/[,\n"]/g, " ");
+  const done = S.complete ? S.complete.at : "";
+  const rows = ["id,water,misses_water,labeller,seconds,labelled_at,changed_in_review,review_complete_at"];
+  for (const p of PTS) { const r = S.labels[p.id]; if (r) rows.push(`${p.id},${r.water},${r.misses ? 1 : 0},${who},${r.seconds},${r.at},${(r.history || []).length},${done}`); }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([rows.join("\n") + "\n"], { type: "text/csv" }));
+  a.download = OUTFILE; a.click();
+}
+document.querySelectorAll("#work button[data-l]").forEach(b => b.onclick = () => label(b.dataset.l));
+$("back").onclick = () => { i = Math.max(0, i - 1); show(); };
+$("skip").onclick = () => { i = Math.min(PTS.length, i + 1); show(); };
+$("export").onclick = exportCsv;
+$("next-unl").onclick = nextUnlabelled;
+$("who").value = S.who || "";
+$("who").oninput = e => { S.who = e.target.value; save(); };
+const KEYS = { w: "yes", y: "yes", p: "partly", n: "no", u: "unsure" };
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" && e.target.type === "text") return;
+  const k = e.key.toLowerCase();
+  if ($("review").style.display === "block") {
+    if (k === "escape") closeZoom();
+    else if (zoomP && KEYS[k]) zoomLabel(KEYS[k]);
+    else if (zoomP && k === "m") { const r = S.labels[zoomP.id]; r.misses = !r.misses; delete S.complete; save(); showComplete(); renderReview(); openZoom(zoomP); }
+    return;
+  }
+  if (KEYS[k]) label(KEYS[k]);
+  else if (k === "m") toggleFlag();
+  else if (k === "arrowleft" || k === "backspace") { e.preventDefault(); i = Math.max(0, i - 1); show(); }
+  else if (k === "arrowright") { i = Math.min(PTS.length, i + 1); show(); }
+});
+// ---- review --------------------------------------------------------------------------------
+let rvTab = "yes", rvChanged = new Set(), zoomP = null;
+function setLabelFor(id, l) {
+  const r = S.labels[id]; if (!r || r.water === l) return;
+  r.history = (r.history || []).concat([{ from: r.water, at: new Date().toISOString(), via: "review" }]);
+  r.water = l; delete S.complete; save(); rvChanged.add(String(id)); showComplete();
+}
+function reviewTabs() {
+  const c = Object.fromEntries(ORDER.map(k => [k, 0])); let m = 0;
+  for (const r of Object.values(S.labels)) { c[r.water]++; if (r.misses) m++; }
+  $("rv-tabs").innerHTML = "";
+  for (const k of [...ORDER, "misses"]) {
+    const b = document.createElement("button");
+    b.textContent = k === "misses" ? `Misses water (${m})` : `${NAMES[k]} (${c[k]})`;
+    b.className = k === rvTab ? "sel" : "";
+    b.onclick = () => { rvTab = k; rvChanged.clear(); renderReview(); };
+    $("rv-tabs").appendChild(b);
+  }
+}
+function renderReview() {
+  reviewTabs();
+  const img = $("rv-img").value, byId = Object.fromEntries(PTS.map(p => [String(p.id), p]));
+  const ids = Object.keys(S.labels).filter(id => (rvTab === "misses" ? S.labels[id].misses : S.labels[id].water === rvTab) || rvChanged.has(id))
+    .sort((a, b) => S.labels[a].at.localeCompare(S.labels[b].at));
+  const g = $("rv-grid"); g.innerHTML = "";
+  if (!ids.length) { g.innerHTML = `<p class="muted">Nothing here.</p>`; return; }
+  ids.forEach((id, n) => {
+    const p = byId[id], r = S.labels[id], t = document.createElement("div");
+    t.className = "tile" + (rvChanged.has(id) ? " changed" : "");
+    t.innerHTML = `<img loading="lazy" src="${src(id, img)}" alt="pond ${id}">
+      <div class="t-meta"><span>${n + 1}. #${id}${r.misses ? " · misses" : ""}</span><b>${rvChanged.has(id) ? "→ " + NAMES[r.water] : ""}</b></div>
+      <div class="t-btns">${ORDER.map(k => `<button data-k="${k}" class="${k}${r.water === k ? " on" : ""}">${k === "yes" ? "W" : k === "partly" ? "P" : k === "no" ? "Not" : "U"}</button>`).join("")}</div>`;
+    t.querySelector("img").onclick = () => openZoom(p);
+    t.querySelectorAll("button").forEach(b => b.onclick = () => { setLabelFor(id, b.dataset.k); renderReview(); });
+    g.appendChild(t);
+  });
+}
+function openZoom(p) {
+  zoomP = p; const r = S.labels[p.id];
+  $("zoom-in").innerHTML = ["ctx", "tc", "ol", "cir"].map(k => `<img class="${k === "ctx" ? "c" : ""}" src="${src(p.id, k)}">`).join("")
+    + `<div class="z-btns">${ORDER.map(k => `<button data-k="${k}" class="${k}${r.water === k ? " on" : ""}">${NAMES[k]}<kbd>${k === "yes" ? "W" : k[0].toUpperCase()}</kbd></button>`).join("")}</div>
+    <p>${p.site.replace(/_/g, " ")} · ${p.date} · pond #${p.id} · ${NAMES[r.water].toLowerCase()}${r.misses ? " · outline misses water" : ""} · M toggles "misses" · Esc closes</p>`;
+  $("zoom-in").querySelectorAll("button").forEach(b => b.onclick = e => { e.stopPropagation(); zoomLabel(b.dataset.k); });
+  $("zoom").style.display = "flex";
+}
+function zoomLabel(l) { if (!zoomP) return; setLabelFor(zoomP.id, l); renderReview(); openZoom(zoomP); }
+function closeZoom() { $("zoom").style.display = "none"; zoomP = null; }
+$("zoom").onclick = e => { if (e.target === $("zoom")) closeZoom(); };
+function showComplete() {
+  const c = S.complete, el = $("rv-complete");
+  el.style.display = c ? "block" : "none";
+  if (c) el.textContent = `Review marked complete ${new Date(c.at).toLocaleString()} (${c.n_labelled} ponds). Changing a label clears the mark.`;
+}
+$("rv-done").onclick = () => {
+  const n = Object.keys(S.labels).length;
+  if (!confirm(`Mark your ${n} labels as reviewed and final?\n\nYou can still change them; doing so clears this mark.`)) return;
+  S.complete = { at: new Date().toISOString(), n_labelled: n }; save(); showComplete();
+};
+$("rv-img").onchange = renderReview;
+$("rv-toggle").onclick = () => {
+  const on = $("review").style.display !== "block";
+  $("review").style.display = on ? "block" : "none";
+  $("rv-toggle").textContent = on ? "Back to labelling" : "Review labels";
+  if (on) { $("work").style.display = "none"; $("done").style.display = "none"; rvChanged.clear(); renderReview(); showComplete(); }
+  else show();
+};
+fetch("ponds.json").then(r => r.json()).then(p => { PTS = p; nextUnlabelled(); })
+  .catch(() => { document.querySelector("main").innerHTML = `<p>Could not load ponds.json. Run <code>make pond-audit-tool</code>, then serve this folder: <code>uv run python -m http.server 8000 -d labels/tool</code> and open <code>/ponds.html</code>.</p>`; });
+</script>
+</body>
+</html>

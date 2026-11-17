@@ -1,0 +1,38 @@
+# Truly ungauged small water: stock tanks and farm ponds (src/hlw/ponds.py).
+#
+# No gauge exists for any of these, so the reference is independent imagery instead: USDA NAIP
+# aerial photography (0.6 m, 4-band RGB+NIR, flown over Texas in 2018, 2020 and 2022; opened on
+# Microsoft Planetary Computer, collection "naip"). On each NAIP flight date, water is outlined
+# from the aerial image at 1 m and compared with the satellite maps from the nearest clear
+# Sentinel-2 days (and Sentinel-1 days) around that date.
+#
+# Sites are 5 km x 5 km boxes in ranch and farm country across UTM 14N, chosen by landscape
+# before looking at any water map, and far from every training and transfer reservoir. None has
+# a TWDB gauge; the water bodies inside are stock tanks and farm ponds of ~0.05-50 acres.
+# Built-up land (ESA WorldCover 2021 class 50) is masked out at every site.
+
+half_km: 2.5            # half-width of each site box
+naip_years: [2018, 2020, 2022]
+s2_window_days: 10      # clear S2 days within +-10 days of the NAIP flight are mapped
+s1_window_days: 6
+min_pond_m2: 200        # smallest NAIP water body kept (2 Sentinel-2 pixels)
+max_pond_acres: 50      # larger water bodies are masked out (not "ponds")
+naip_ndwi_seed: 0.20    # NAIP water = NDWI > seed, grown through NDWI > grow (hysteresis)
+naip_ndwi_grow: 0.10
+naip_nir_red_seed: 0.5    # ... and NIR < 0.5 x red (seed) / 0.65 x red (grow): bright bare ground
+naip_nir_red_grow: 0.65   # in some 2022 flights passes the NDWI test but has NIR ~0.7 x red
+naip_core_m: 4          # and must have a point >= 4 m from its edge (an 8 m-wide core)
+naip_max_elong: 12      # and area / (pi * core^2) <= 12 (not a strip)
+
+sites:
+  rolling_plains:    {name: Rolling Plains (Throckmorton Co.),   point: [-99.25, 33.10]}
+  cross_timbers:     {name: Cross Timbers (Erath Co.),           point: [-98.30, 32.30]}
+  concho_valley:     {name: Concho Valley (Coke Co.),            point: [-100.45, 31.85]}
+  edwards_plateau:   {name: Edwards Plateau (Menard Co.),        point: [-99.70, 30.80]}
+  blackland_prairie: {name: Blackland Prairie (Falls Co.),       point: [-96.95, 31.15]}
+  post_oak:          {name: Post Oak Savannah (Lee Co.),         point: [-96.95, 30.30]}
+  # South Texas: the first box (-98.20, 28.45) fell on the Three Rivers refinery, town and Frio
+  # River corridor rather than ranch land, so it was moved to McMullen Co. brush country before
+  # any satellite comparison was looked at for it
+  south_texas:       {name: South Texas brush (McMullen Co.),    point: [-98.70, 28.25]}
+  high_plains:       {name: High Plains playas (Hale Co.),       point: [-101.70, 34.10]}

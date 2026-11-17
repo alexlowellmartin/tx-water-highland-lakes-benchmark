@@ -1,0 +1,36 @@
+{
+ "hlw_s2_unet_r18.pt": {
+  "sha256": "64472166d785e04580b12f327a75f0fe8623d0c9ef6f02d8cf7d504e48168b71",
+  "bytes": 28792347,
+  "name": "s2_holdout_travis_scl_jrc_moco_s0",
+  "sensor": "s2",
+  "fold": "holdout_travis",
+  "label": "scl_jrc",
+  "init": "moco",
+  "seed": 0,
+  "iters": 2000,
+  "batch": 16,
+  "lr": 0.0003,
+  "chip": 256,
+  "train_minutes": 7.86,
+  "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+  "n_scenes": 208
+ },
+ "hlw_s1_unet_r50.pt": {
+  "sha256": "56f06e0b3c701dcc1572ee731aa566839e3d812d312d72f65addb4ad35bd332d",
+  "bytes": 65249219,
+  "name": "s1_holdout_travis_teacher_moco_s0",
+  "sensor": "s1",
+  "fold": "holdout_travis",
+  "label": "scl_jrc",
+  "init": "moco",
+  "seed": 0,
+  "iters": 2000,
+  "batch": 16,
+  "lr": 0.0003,
+  "chip": 256,
+  "train_minutes": 2.79,
+  "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+  "n_pairs": 132
+ }
+}

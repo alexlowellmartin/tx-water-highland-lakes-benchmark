@@ -1,0 +1,108 @@
+{
+ "cutoffs_from_highland_lakes": {
+  "ndwi": -0.02499999999999991,
+  "mndwi": -0.13999999999999996,
+  "vv": -14.200000000000001
+ },
+ "median_by_method": [
+  {
+   "sensor": "s1",
+   "method": "S1 U-Net",
+   "r": 0.894,
+   "median_abs_pct_err": 10.987,
+   "median_bias_pct": -6.525,
+   "rmse_after_fit_pct": 13.915,
+   "swing_tracked": 0.916
+  },
+  {
+   "sensor": "s1",
+   "method": "VV (HL cutoff)",
+   "r": 0.735,
+   "median_abs_pct_err": 20.864,
+   "median_bias_pct": 5.736,
+   "rmse_after_fit_pct": 22.102,
+   "swing_tracked": 1.1
+  },
+  {
+   "sensor": "s1",
+   "method": "VV (Otsu)",
+   "r": 0.636,
+   "median_abs_pct_err": 20.787,
+   "median_bias_pct": 5.057,
+   "rmse_after_fit_pct": 23.047,
+   "swing_tracked": 0.768
+  },
+  {
+   "sensor": "s2",
+   "method": "MNDWI (0)",
+   "r": 0.975,
+   "median_abs_pct_err": 11.925,
+   "median_bias_pct": -11.925,
+   "rmse_after_fit_pct": 8.62,
+   "swing_tracked": 0.803
+  },
+  {
+   "sensor": "s2",
+   "method": "MNDWI (HL cutoff)",
+   "r": 0.982,
+   "median_abs_pct_err": 8.084,
+   "median_bias_pct": -6.531,
+   "rmse_after_fit_pct": 7.715,
+   "swing_tracked": 0.832
+  },
+  {
+   "sensor": "s2",
+   "method": "MNDWI (Otsu)",
+   "r": 0.97,
+   "median_abs_pct_err": 12.382,
+   "median_bias_pct": -12.382,
+   "rmse_after_fit_pct": 8.236,
+   "swing_tracked": 0.846
+  },
+  {
+   "sensor": "s2",
+   "method": "NDWI (HL cutoff)",
+   "r": 0.985,
+   "median_abs_pct_err": 7.543,
+   "median_bias_pct": -6.919,
+   "rmse_after_fit_pct": 6.807,
+   "swing_tracked": 0.843
+  },
+  {
+   "sensor": "s2",
+   "method": "NDWI (Otsu)",
+   "r": 0.98,
+   "median_abs_pct_err": 8.464,
+   "median_bias_pct": -7.874,
+   "rmse_after_fit_pct": 7.256,
+   "swing_tracked": 0.904
+  },
+  {
+   "sensor": "s2",
+   "method": "S2 U-Net",
+   "r": 0.992,
+   "median_abs_pct_err": 6.018,
+   "median_bias_pct": -2.105,
+   "rmse_after_fit_pct": 5.644,
+   "swing_tracked": 0.846
+  },
+  {
+   "sensor": "s2",
+   "method": "SCL water",
+   "r": 0.868,
+   "median_abs_pct_err": 12.476,
+   "median_bias_pct": -11.135,
+   "rmse_after_fit_pct": 16.087,
+   "swing_tracked": 0.864
+  }
+ ],
+ "coverage_median": {
+  "s2_clear_pct": 91.0,
+  "s2_or_s1_pct": 100.0
+ },
+ "cloudy_median_abs": {
+  "s2_cloud_in_pct": 18.2,
+  "s2_masked_pct": 46.0,
+  "s1_pct": 9.2
+ }
+}

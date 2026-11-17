@@ -1,0 +1,37 @@
+# "Pseudo-ungauged" transfer reservoirs.
+#
+# Small West/Central Texas water-supply reservoirs that DO have a TWDB record, mapped as if they
+# had none: no model, cutoff or zone choice uses their gauge or any imagery-derived label from
+# them. The TWDB record is opened only to score the maps afterwards. This is the closest honest
+# test of "would this work on a reservoir with no gauge?", because a truly ungauged reservoir has
+# nothing to score against.
+#
+# Why these: all are far smaller than the Highland Lakes (TWDB max area 2018-2026 of 285 to
+# 7,239 acres vs 6,000-19,000), swung 46-92 % in area over the period (so there is a signal to
+# track), have >= 99 % daily coverage in TWDB, sit in UTM 14N, and differ in setting from the
+# training lakes: semi-arid plains and plateau, red-clay turbid water, shallow flats that expose
+# wide mudflats, and narrow canyon lakes.
+#
+# `point` is the reservoir location published by TWDB in
+#   https://www.waterdatafortexas.org/reservoirs/statewide/recent-conditions.geojson
+# and is used as the zone seed. `radius_km` is the half-width of the square clip box around it,
+# chosen to contain the lake at full pool; `clip` overrides the box where a neighbouring water
+# body would otherwise join the zone, and `exclude_km` ([dx0, dy0, dx1, dy1] in km from `point`)
+# cuts a rectangle out of the box (Twin Buttes: a separate pond linked by a ditch along the dam).
+
+zone_buffer_m: 150      # smaller than the Highland Lakes' 300 m: these lakes are small
+s2_per_month: 1         # clear S2 dates mapped per month
+s2_cloudy: 10           # cloudy S2 dates sampled per lake, to show optical failure under cloud
+s1_per_month: 2         # S1 dates mapped per month (some lakes are seen by two orbit tracks)
+
+lakes:
+  mackenzie:      {name: Mackenzie Reservoir,  twdb: mackenzie,      point: [-101.4382, 34.5453], radius_km: 6}
+  hords_creek:    {name: Hords Creek Lake,     twdb: hords-creek,    point: [-99.5609, 31.8329],  radius_km: 3}
+  abilene:        {name: Lake Abilene,         twdb: abilene,        point: [-99.8890, 32.2346],  radius_km: 3}
+  sweetwater:     {name: Lake Sweetwater,      twdb: sweetwater,     point: [-100.3037, 32.4387], radius_km: 3}
+  greenbelt:      {name: Greenbelt Lake,       twdb: greenbelt,      point: [-100.8949, 35.0006], radius_km: 5}
+  oc_fisher:      {name: O. C. Fisher Lake,    twdb: o-c-fisher,     point: [-100.4818, 31.4846], radius_km: 7}
+  brady_creek:    {name: Brady Creek Reservoir, twdb: brady-creek,   point: [-99.3856, 31.1382],  radius_km: 8}
+  oak_creek:      {name: Oak Creek Reservoir,  twdb: oak-creek,      point: [-100.2684, 32.0407], radius_km: 8}
+  medina:         {name: Medina Lake,          twdb: medina,         point: [-98.9339, 29.5402],  radius_km: 13}
+  twin_buttes:    {name: Twin Buttes Reservoir, twdb: twin-buttes,   point: [-100.5384, 31.3821], radius_km: 10, exclude_km: [3.5, -12, 12, -6.5]}

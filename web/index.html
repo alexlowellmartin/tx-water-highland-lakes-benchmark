@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highland Lakes Benchmark</title>
+<meta name="description" content="Satellite-mapped surface area of the Texas Highland Lakes vs the official lake level, 2018-2026.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s2: #2a78d6; --s1: #eb6834; --idx: #1baf7a; --nd: #7a5af5; --ref: #0b0b0b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s2: #3987e5; --s1: #d95926; --idx: #199e70; --nd: #9a80f7; --ref: #f0efec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s2: #3987e5; --s1: #d95926; --idx: #199e70; --nd: #9a80f7; --ref: #f0efec;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 17px; margin: 0 0 4px; }
+p.lede { color: var(--ink2); margin: 0 0 18px; max-width: 760px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; margin: 16px 0; }
+.sub { color: var(--ink2); font-size: 13.5px; margin: 0 0 12px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.tabs button, .ctl button { font: inherit; font-size: 14px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 999px;
+  cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.ctl { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 10px;
+  font-size: 13.5px; color: var(--ink2); }
+select { font: inherit; font-size: 13.5px; padding: 4px 6px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+.compare { position: relative; width: 100%; overflow: hidden; border-radius: 8px;
+  background: #000; user-select: none; touch-action: pan-y; }
+.compare .layer { position: absolute; inset: 0; }
+.compare img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.compare .after { clip-path: inset(0 0 0 var(--cut, 50%)); }
+.compare .handle { position: absolute; top: 0; bottom: 0; left: var(--cut, 50%); width: 2px;
+  background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.4); pointer-events: none; }
+.compare .handle::after { content: "⇆"; position: absolute; top: 50%; left: -15px; width: 32px;
+  height: 32px; margin-top: -16px; border-radius: 50%; background: #fff; color: #111;
+  display: grid; place-items: center; font-size: 16px; }
+.compare .tag { position: absolute; top: 8px; padding: 2px 8px; border-radius: 4px; font-size: 12.5px;
+  background: rgba(0,0,0,.6); color: #fff; }
+.compare .tag.l { left: 8px; } .compare .tag.r { right: 8px; text-align: right; }
+.compare input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0;
+  cursor: ew-resize; margin: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink2); margin: 8px 0 0; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px;
+  vertical-align: -1px; }
+.sw.line { width: 16px; height: 2px; border-radius: 1px; vertical-align: 3px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); white-space: nowrap; display: none; z-index: 2; }
+.tip b { font-weight: 600; } .tip .k { color: var(--ink2); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--grid); }
+th { color: var(--ink2); font-weight: 600; }
+td.n { text-align: right; } th.n { text-align: right; }
+.tablewrap { overflow-x: auto; }
+.note { font-size: 13px; color: var(--ink2); }
+a { color: var(--s2); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.stat { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.tabs-label { margin: 14px 0 6px; }
+.stat .v { font-size: 20px; font-weight: 600; } .stat .l { font-size: 12px; color: var(--ink2); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Highland Lakes from space</h1>
+  <p class="lede">Surface water of the Texas Highland Lakes mapped from Sentinel-2 (optical) and
+    Sentinel-1 (radar, sees through cloud) with a U-Net fine-tuned from TorchGeo pretrained weights,
+    compared with the official lake level from the Texas Water Development Board. Each lake is mapped
+    by a model that never saw that lake during training.</p>
+  <div class="tabs" id="tabs" role="group" aria-label="Highland Lakes"></div>
+  <div id="tabs2wrap" hidden>
+    <p class="sub tabs-label">Transfer test: small reservoirs elsewhere in Texas that no model saw in
+      training, mapped as if they had no gauge (their TWDB record is used only for scoring).</p>
+    <div class="tabs" id="tabs2" role="group" aria-label="Small reservoirs (transfer test)"></div>
+  </div>
+
+  <section class="card" id="compareCard">
+    <h2>Before / after</h2>
+    <p class="sub">Drag across the image. Blue line: mapped shoreline. Orange: where the model ensemble
+      disagrees (pixel standard deviation &gt; 0.05; stronger orange = less certain).</p>
+    <div class="ctl">
+      <label>Left <select id="selA"></select></label>
+      <label>Right <select id="selB"></select></label>
+      <label><input type="checkbox" id="showUnc" checked> shoreline &amp; uncertainty</label>
+    </div>
+    <div class="compare" id="compare">
+      <div class="layer before"><img id="imgA" alt=""><img id="uncA" alt=""></div>
+      <div class="layer after"><img id="imgB" alt=""><img id="uncB" alt=""></div>
+      <div class="handle"></div>
+      <span class="tag l" id="tagA"></span><span class="tag r" id="tagB"></span>
+      <input type="range" min="0" max="100" value="50" id="cut" aria-label="Before/after position">
+    </div>
+    <div class="stats" id="frameStats"></div>
+  </section>
+
+  <section class="card">
+    <h2>Timeline: mapped area vs official record</h2>
+    <p class="sub" id="tlSub">TWDB area is the official level converted through the lake's
+      elevation&ndash;area curve. Click a ringed S2 point to load it on the right side of the slider.</p>
+    <div class="ctl" id="tlCtl">
+      <label><input type="checkbox" data-s="s2" checked> S2 U-Net</label>
+      <label><input type="checkbox" data-s="s1" checked> S1 U-Net</label>
+      <label><input type="checkbox" data-s="nd"> NDWI threshold</label>
+      <label><input type="checkbox" data-s="idx"> MNDWI threshold</label>
+    </div>
+    <div class="chart" id="tl"><div class="tip"></div></div>
+    <div class="legend" id="tlLegend"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>Area vs lake level</h2>
+      <p class="sub">Each dot is one satellite date. The line is the TWDB rating curve.</p>
+      <div class="chart" id="sc"><div class="tip"></div></div>
+      <div class="legend" id="scLegend"></div>
+    </section>
+    <section class="card">
+      <h2>How well does area track level?</h2>
+      <p class="sub" id="mSub"></p>
+      <div class="tablewrap"><table id="mTable"></table></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Accuracy on hand-labelled points</h2>
+    <p class="sub">Stratified random points labelled visually from the imagery by the author, blind to every method (see README).
+      Held-out = lakes or years never used for training. 95% bootstrap intervals in brackets.</p>
+    <div class="tablewrap"><table id="pTable"></table></div>
+  </section>
+  <p class="note">Data: Copernicus Sentinel-2 L2A and Sentinel-1 RTC via Microsoft Planetary Computer;
+    JRC Global Surface Water; TWDB Water Data for Texas. Contains modified Copernicus Sentinel data 2018–2026.
+    Code, method and limitations: <a href="https://github.com/alexlowellmartin/tx-water-highland-lakes-benchmark">tx-water-highland-lakes-benchmark</a>.
+    <span id="gen"></span></p>
+</main>
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (x, d = 0) => x == null ? "–" : Number(x).toLocaleString(undefined, {maximumFractionDigits: d, minimumFractionDigits: d});
+const NS = "http://www.w3.org/2000/svg";
+let APP, LAKE, show = {s2: true, s1: true, idx: false, nd: false};
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function scale(d0, d1, r0, r1) { const f = v => r0 + (v - d0) / (d1 - d0 || 1) * (r1 - r0); f.inv = p => d0 + (p - r0) / (r1 - r0) * (d1 - d0); return f; }
+function niceTicks(lo, hi, n = 5) {
+  const step0 = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+const D = s => new Date(s + "T12:00:00Z").getTime();
+
+async function init() {
+  APP = await (await fetch("data/app.json")).json();
+  $("#gen").textContent = "Built " + APP.generated + ".";
+  const highland = ["travis", "buchanan", "lbj", "inks", "marble_falls"].filter(k => APP.lakes[k]);
+  const transfer = Object.keys(APP.lakes).filter(k => APP.lakes[k].group === "transfer");
+  const order = highland.concat(transfer);
+  const addTabs = (host, keys) => keys.forEach(k => {
+    const b = document.createElement("button");
+    b.textContent = APP.lakes[k].name; b.dataset.k = k;
+    b.onclick = () => select(k);
+    host.appendChild(b);
+  });
+  addTabs($("#tabs"), highland);
+  if (transfer.length) { $("#tabs2wrap").hidden = false; addTabs($("#tabs2"), transfer); }
+  $("#tlCtl").addEventListener("change", e => { show[e.target.dataset.s] = e.target.checked; drawTimeline(); drawScatter(); });
+  $("#cut").addEventListener("input", e => $("#compare").style.setProperty("--cut", e.target.value + "%"));
+  $("#showUnc").addEventListener("change", e => { $("#uncA").hidden = $("#uncB").hidden = !e.target.checked; });
+  ["#selA", "#selB"].forEach(s => $(s).addEventListener("change", loadFrames));
+  window.addEventListener("resize", () => { drawTimeline(); drawScatter(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawTimeline(); drawScatter(); });
+  drawPointTable();
+  const h = location.hash.slice(1);
+  select(order.includes(h) ? h : order[0]);
+}
+
+function select(k) {
+  if (location.hash.slice(1) !== k) history.replaceState(null, "", "#" + k);
+  LAKE = k;
+  document.querySelectorAll("#tabs button, #tabs2 button").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === k));
+  const L = APP.lakes[k];
+  const fr = L.frames || [];
+  $("#compareCard").hidden = !fr.length;
+  if (fr.length) {
+    const opts = fr.map((f, i) => `<option value="${i}">${f.date} · ${fmt(f.level, 1)} ft</option>`).join("");
+    $("#selA").innerHTML = opts; $("#selB").innerHTML = opts;
+    let lo = 0, hi = 0;
+    fr.forEach((f, i) => { if (f.level < fr[lo].level) lo = i; if (f.level > fr[hi].level) hi = i; });
+    $("#selA").value = lo; $("#selB").value = hi;
+    $("#compare").style.aspectRatio = (1 / L.aspect).toFixed(4);
+    loadFrames();
+  }
+  $("#tlSub").textContent = L.note ? L.note : L.dynamic
+    ? "TWDB area is the official level converted through the lake's elevation–area curve. Click a ringed S2 point to load it on the right side of the slider."
+    : "A pass-through lake held near constant level apart from occasional drawdowns (the dips). On steady days a reliable mapper draws a flat line, so scatter there is the noise floor. Steps in the official area at constant level are likely rating-curve revisions.";
+  drawTimeline(); drawScatter(); drawMetrics();
+}
+
+function loadFrames() {
+  const fr = APP.lakes[LAKE].frames, a = fr[$("#selA").value], b = fr[$("#selB").value];
+  $("#imgA").src = a.rgb; $("#uncA").src = a.unc; $("#imgB").src = b.rgb; $("#uncB").src = b.unc;
+  $("#imgA").alt = `${APP.lakes[LAKE].name} on ${a.date}`; $("#imgB").alt = `${APP.lakes[LAKE].name} on ${b.date}`;
+  $("#tagA").textContent = `${a.date} · ${fmt(a.level, 1)} ft`;
+  $("#tagB").textContent = `${b.date} · ${fmt(b.level, 1)} ft`;
+  const st = (f, side) => `<div class="stat"><div class="v">${fmt(f.area)} ac</div><div class="l">${side}: mapped (± ${fmt(f.area_std)} ensemble) · TWDB ${fmt(f.twdb_area)} ac</div></div>`;
+  const pct = a.area && b.area ? ((b.area - a.area) / a.area * 100) : null;
+  $("#frameStats").innerHTML = st(a, "Left") + st(b, "Right") +
+    `<div class="stat"><div class="v">${pct == null ? "–" : (pct > 0 ? "+" : "") + fmt(pct, 0) + "%"}</div><div class="l">Change in mapped area · level ${fmt(b.level - a.level, 1)} ft</div></div>`;
+}
+
+function setupSvg(host, W, H) {
+  host.querySelectorAll("svg").forEach(s => s.remove());
+  const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img"});
+  host.insertBefore(svg, host.firstChild);
+  return svg;
+}
+function axes(svg, x, y, W, H, m, xt, yt, xfmt, yfmt, ylab) {
+  const g = el("g", {}, svg);
+  yt.forEach(v => {
+    el("line", {x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: css("--grid"), "stroke-width": 1}, g);
+    el("text", {x: m.l - 6, y: y(v) + 3.5, "text-anchor": "end"}, g).textContent = yfmt(v);
+  });
+  xt.forEach(v => { el("text", {x: x(v), y: H - m.b + 16, "text-anchor": "middle"}, g).textContent = xfmt(v); });
+  el("line", {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: css("--axis")}, g);
+  if (ylab) { const t = el("text", {x: m.l, y: m.t - 8}, g); t.textContent = ylab; }
+}
+
+function drawTimeline() {
+  const L = APP.lakes[LAKE], host = $("#tl"), tip = $(".tip", host);
+  const W = Math.max(host.clientWidth, 320), H = Math.round(Math.min(380, Math.max(260, W * 0.36)));
+  const m = {l: 58, r: 12, t: 22, b: 28};
+  const svg = setupSvg(host, W, H);
+  const tw = L.twdb.filter(r => r[2] != null);
+  const vals = [...tw.map(r => r[2]), ...(show.s2 ? L.s2.map(r => r[1]) : []), ...(show.s1 ? L.s1.map(r => r[1]) : []), ...(show.idx ? L.s2.map(r => r[3]) : []), ...(show.nd ? L.s2.map(r => r[5]) : [])].filter(v => v != null);
+  let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.08 || hi * 0.05; lo -= pad; hi += pad;
+  const t0 = D(L.twdb[0][0]), t1 = D(L.twdb[L.twdb.length - 1][0]);
+  const x = scale(t0, t1, m.l, W - m.r), y = scale(lo, hi, H - m.b, m.t);
+  const years = []; for (let yv = new Date(t0).getUTCFullYear() + 1; yv <= new Date(t1).getUTCFullYear(); yv++) years.push(Date.UTC(yv, 0, 1));
+  axes(svg, x, y, W, H, m, years, niceTicks(lo, hi), v => new Date(v).getUTCFullYear(), v => fmt(v), "acres");
+  const path = tw.map((r, i) => (i ? "L" : "M") + x(D(r[0])).toFixed(1) + "," + y(r[2]).toFixed(1)).join("");
+  el("path", {d: path, fill: "none", stroke: css("--ref"), "stroke-width": 2, "stroke-linejoin": "round"}, svg);
+  const frames = new Set((L.frames || []).map(f => f.date));
+  const dots = (rows, vi, color, r, ring) => rows.forEach(row => {
+    if (row[vi] == null) return;
+    const c = el("circle", {cx: x(D(row[0])), cy: y(row[vi]), r, fill: color, stroke: css("--surface"), "stroke-width": 1.5}, svg);
+    if (ring && frames.has(row[0])) {
+      c.setAttribute("stroke", css("--ink")); c.setAttribute("stroke-width", 1.5); c.style.cursor = "pointer";
+      c.addEventListener("click", () => { const i = L.frames.findIndex(f => f.date === row[0]); $("#selB").value = i; loadFrames(); $("#compareCard").scrollIntoView({behavior: "smooth"}); });
+    }
+  });
+  if (show.s1) dots(L.s1, 1, css("--s1"), 3, false);
+  if (show.idx) dots(L.s2, 3, css("--idx"), 3.5, false);
+  if (show.nd) dots(L.s2, 5, css("--nd"), 3.5, false);
+  if (show.s2) dots(L.s2, 1, css("--s2"), 4.5, true);
+  // hover crosshair
+  const cross = el("line", {y1: m.t, y2: H - m.b, stroke: css("--muted"), "stroke-width": 1, opacity: 0}, svg);
+  const hit = el("rect", {x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent"}, svg);
+  hit.style.pointerEvents = "all";
+  const near = (rows, t) => { let b = null, bd = 1e18; rows.forEach(r => { const d = Math.abs(D(r[0]) - t); if (d < bd) { bd = d; b = r; } }); return bd < 20 * 864e5 ? b : null; };
+  hit.addEventListener("pointermove", ev => {
+    const rect = svg.getBoundingClientRect(), px = (ev.clientX - rect.left) * W / rect.width;
+    const t = x.inv(px), tr = near(tw, t), s2 = show.s2 ? near(L.s2, t) : null, s1 = show.s1 ? near(L.s1, t) : null;
+    if (!tr) return;
+    cross.setAttribute("x1", x(D(tr[0]))); cross.setAttribute("x2", x(D(tr[0]))); cross.setAttribute("opacity", 1);
+    tip.innerHTML = `<b>Week of ${tr[0]}</b><br><span class="k">Official level</span> ${fmt(tr[1], 1)} ft<br><span class="k">TWDB area</span> ${fmt(tr[2])} ac` +
+      (s2 ? `<br><span class="sw" style="background:${css("--s2")}"></span>S2 ${s2[0]}: ${fmt(s2[1])} ac` : "") +
+      (s2 && show.idx ? `<br><span class="sw" style="background:${css("--idx")}"></span>MNDWI: ${fmt(s2[3])} ac` : "") +
+      (s2 && show.nd ? `<br><span class="sw" style="background:${css("--nd")}"></span>NDWI: ${fmt(s2[5])} ac` : "") +
+      (s1 ? `<br><span class="sw" style="background:${css("--s1")}"></span>S1 ${s1[0]}: ${fmt(s1[1])} ac` : "");
+    tip.style.display = "block";
+    const tx = (x(D(tr[0])) / W) * rect.width;
+    tip.style.left = Math.min(tx + 12, rect.width - tip.offsetWidth - 4) + "px"; tip.style.top = "8px";
+  });
+  hit.addEventListener("pointerleave", () => { tip.style.display = "none"; cross.setAttribute("opacity", 0); });
+  hit.addEventListener("click", ev => { // let clicks reach ringed dots underneath
+    hit.style.pointerEvents = "none"; const under = document.elementFromPoint(ev.clientX, ev.clientY); hit.style.pointerEvents = "all";
+    if (under && under.tagName === "circle") under.dispatchEvent(new MouseEvent("click"));
+  });
+  $("#tlLegend").innerHTML = `<span><span class="sw line" style="background:${css("--ref")}"></span>TWDB area (official)</span>` +
+    (show.s2 ? `<span><span class="sw" style="background:${css("--s2")}"></span>S2 U-Net (clear days)</span>` : "") +
+    (show.s1 ? `<span><span class="sw" style="background:${css("--s1")}"></span>S1 U-Net (all days, through cloud)</span>` : "") +
+    (show.idx ? `<span><span class="sw" style="background:${css("--idx")}"></span>MNDWI threshold</span>` : "") +
+    (show.nd ? `<span><span class="sw" style="background:${css("--nd")}"></span>NDWI threshold</span>` : "");
+}
+
+function drawScatter() {
+  const L = APP.lakes[LAKE], host = $("#sc"), tip = $(".tip", host);
+  const W = Math.max(host.clientWidth, 280), H = Math.round(W * 0.8), m = {l: 58, r: 10, t: 22, b: 34};
+  const svg = setupSvg(host, W, H);
+  const pts = [...(show.s1 ? L.s1.map(r => ({lv: r[2], a: r[1], d: r[0], s: "s1"})) : []), ...(show.s2 ? L.s2.map(r => ({lv: r[4], a: r[1], d: r[0], s: "s2"})) : [])].filter(p => p.lv != null && p.a != null);
+  const curve = L.twdb.filter(r => r[1] != null && r[2] != null).sort((a, b) => a[1] - b[1]);
+  const lvs = [...pts.map(p => p.lv), ...curve.map(r => r[1])], as = [...pts.map(p => p.a), ...curve.map(r => r[2])];
+  let x0 = Math.min(...lvs), x1 = Math.max(...lvs), y0 = Math.min(...as), y1 = Math.max(...as);
+  const px = (x1 - x0) * 0.05 || 0.5, py = (y1 - y0) * 0.08 || y1 * 0.05;
+  const x = scale(x0 - px, x1 + px, m.l, W - m.r), y = scale(y0 - py, y1 + py, H - m.b, m.t);
+  axes(svg, x, y, W, H, m, niceTicks(x0 - px, x1 + px, 5), niceTicks(y0 - py, y1 + py, 5), v => fmt(v), v => fmt(v), "acres");
+  el("text", {x: W - m.r, y: H - 4, "text-anchor": "end"}, svg).textContent = "official level (ft)";
+  el("path", {d: curve.map((r, i) => (i ? "L" : "M") + x(r[1]).toFixed(1) + "," + y(r[2]).toFixed(1)).join(""), fill: "none", stroke: css("--ref"), "stroke-width": 2}, svg);
+  pts.forEach(p => {
+    const c = el("circle", {cx: x(p.lv), cy: y(p.a), r: p.s === "s2" ? 4.5 : 3, fill: css(p.s === "s2" ? "--s2" : "--s1"), stroke: css("--surface"), "stroke-width": 1.5}, svg);
+    c.addEventListener("pointerenter", () => {
+      tip.innerHTML = `<b>${p.s.toUpperCase()} ${p.d}</b><br><span class="k">Level</span> ${fmt(p.lv, 2)} ft<br><span class="k">Mapped</span> ${fmt(p.a)} ac`;
+      tip.style.display = "block"; const r = svg.getBoundingClientRect();
+      tip.style.left = Math.min(x(p.lv) / W * r.width + 10, r.width - tip.offsetWidth - 4) + "px"; tip.style.top = Math.max(y(p.a) / H * r.height - 50, 0) + "px";
+    });
+    c.addEventListener("pointerleave", () => tip.style.display = "none");
+  });
+  $("#scLegend").innerHTML = `<span><span class="sw line" style="background:${css("--ref")}"></span>TWDB rating curve</span>` +
+    (show.s2 ? `<span><span class="sw" style="background:${css("--s2")}"></span>S2 U-Net</span>` : "") +
+    (show.s1 ? `<span><span class="sw" style="background:${css("--s1")}"></span>S1 U-Net</span>` : "");
+}
+
+function drawMetrics() {
+  const L = APP.lakes[LAKE];
+  const rows = L.metrics || [];
+  $("#mSub").textContent = L.dynamic
+    ? "r = Pearson correlation of mapped area with official level. RMSE vs TWDB area in acres, raw and after a linear fit (which absorbs fixed differences in what counts as 'lake')."
+    : "Constant-level lake: CV = scatter of mapped area across dates (lower is better). TWDB area CV shown for reference.";
+  const head = L.dynamic ? ["Method", "n", "r (level)", "RMSE ac", "RMSE fit ac"] : ["Method", "n", "CV %", "mean ac", "TWDB CV %"];
+  const body = rows.map(r => L.dynamic
+    ? [r.method, r.n, fmt(r.r_level, 3), fmt(r.rmse_acres), fmt(r.rmse_after_linear_acres)]
+    : [r.method, r.n, fmt(r.cv_pct, 2), fmt(r.mean_area), fmt(r.std_twdb_area / r.mean_twdb_area * 100, 2)]);
+  $("#mTable").innerHTML = `<tr>${head.map((h, i) => `<th class="${i ? "n" : ""}">${h}</th>`).join("")}</tr>` +
+    body.map(b => `<tr>${b.map((v, i) => `<td class="${i ? "n" : ""}">${v}</td>`).join("")}</tr>`).join("");
+}
+
+function drawPointTable() {
+  const pm = (APP.point_metrics || []).filter(r => r.group === "all_heldout");
+  const names = {ens_mean: "S2 U-Net, 3-model ensemble", single: "S2 U-Net, single model", mc_mean: "S2 U-Net, MC dropout",
+    mndwi_tuned: "MNDWI, tuned cutoff", ndwi_tuned: "NDWI, tuned cutoff", mndwi_otsu: "MNDWI, Otsu per scene",
+    ndwi_otsu: "NDWI, Otsu per scene", rand_init: "S2 U-Net, no pretraining", jrc50_label: "S2 U-Net trained on JRC labels",
+    s1: "S1 U-Net", vv_tuned: "S1 VV, tuned cutoff", vv_otsu: "S1 VV, Otsu", weak_scl_jrc: "Weak label: SCL ∩ JRC",
+    weak_scl: "Weak label: SCL", weak_jrc50: "Weak label: JRC ≥50%", weak_io_lulc: "Weak label: IO LULC", weak_worldcover: "Weak label: WorldCover"};
+  const rows = pm.filter(r => names[r.method]).sort((a, b) => b.iou - a.iou);
+  $("#pTable").innerHTML = `<tr><th>Method</th><th class="n">IoU</th><th class="n">F1</th><th class="n">points</th></tr>` +
+    rows.map(r => `<tr><td>${names[r.method]}</td><td class="n">${fmt(r.iou, 3)} [${fmt(r.iou_lo, 3)}–${fmt(r.iou_hi, 3)}]</td><td class="n">${fmt(r.f1, 3)}</td><td class="n">${r.n}</td></tr>`).join("");
+}
+init();
+</script>
+</body>
+</html>

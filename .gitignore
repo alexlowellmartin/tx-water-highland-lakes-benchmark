@@ -1,0 +1,17 @@
+# data: everything is re-downloadable; small manifests are kept for reproducibility
+data/*
+!data/scenes/
+!data/levels/
+!data/aoi/
+data/aoi/*
+!data/aoi/lakes.geojson
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# labelling-tool images (regenerate: make label-tool)
+labels/tool/chips/
+labels/tool/pondchips/

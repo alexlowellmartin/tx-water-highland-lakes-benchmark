@@ -1,0 +1,36 @@
+lake,case,n,median_abs_err_pct,p90_abs_err_pct
+buchanan,"S2 U-Net, clear dates",148,4.276862996008434,6.256125609987157
+buchanan,"S2 U-Net, cloudy dates (clouds left in)",30,11.651627497274447,36.85700375676482
+buchanan,"S2 U-Net, cloudy dates (clouds masked)",30,29.527485211099155,68.01518033135198
+buchanan,"S1 U-Net, all dates",250,2.985400533079776,5.421347506765456
+buchanan,"S1 U-Net, dates with no clear S2 within 3 days",177,3.000835538765436,5.401167785768206
+buchanan,months with a usable observation: S2 clear only,89,83.9622641509434,
+buchanan,months with a usable observation: S2 clear + S1,106,100.0,
+inks,"S2 U-Net, clear dates",95,9.66609848006909,14.104003074488517
+inks,"S2 U-Net, cloudy dates (clouds left in)",6,15.091733087941966,57.19396640204132
+inks,"S2 U-Net, cloudy dates (clouds masked)",6,39.997242031441886,81.51140080146456
+inks,"S1 U-Net, all dates",251,7.878773199438665,12.119196680535287
+inks,"S1 U-Net, dates with no clear S2 within 3 days",205,7.974360968123138,12.121889574585493
+inks,months with a usable observation: S2 clear only,95,89.62264150943396,
+inks,months with a usable observation: S2 clear + S1,106,100.0,
+lbj,"S2 U-Net, clear dates",88,16.6028545948999,17.916601746629667
+lbj,"S2 U-Net, cloudy dates (clouds left in)",6,12.699764918791287,30.61713373725418
+lbj,"S2 U-Net, cloudy dates (clouds masked)",6,29.293805270030532,55.7799516039372
+lbj,"S1 U-Net, all dates",250,15.536654765532065,17.34289274235694
+lbj,"S1 U-Net, dates with no clear S2 within 3 days",205,15.565160306145383,17.32485131761846
+lbj,months with a usable observation: S2 clear only,88,83.01886792452831,
+lbj,months with a usable observation: S2 clear + S1,106,100.0,
+marble_falls,"S2 U-Net, clear dates",94,8.134026009236287,11.917852288460201
+marble_falls,"S2 U-Net, cloudy dates (clouds left in)",6,41.12355947409429,65.11616944573532
+marble_falls,"S2 U-Net, cloudy dates (clouds masked)",6,29.200725742706986,73.59115732592099
+marble_falls,"S1 U-Net, all dates",252,7.283678940238461,13.032544135076213
+marble_falls,"S1 U-Net, dates with no clear S2 within 3 days",210,7.325458755772186,12.977256994646485
+marble_falls,months with a usable observation: S2 clear only,94,88.67924528301887,
+marble_falls,months with a usable observation: S2 clear + S1,106,100.0,
+travis,"S2 U-Net, clear dates",121,4.641546503458014,9.861680534566572
+travis,"S2 U-Net, cloudy dates (clouds left in)",30,10.395837753011541,66.63821626308557
+travis,"S2 U-Net, cloudy dates (clouds masked)",30,35.98286436533825,78.8189117412772
+travis,"S1 U-Net, all dates",252,6.207871353148414,10.042493928280267
+travis,"S1 U-Net, dates with no clear S2 within 3 days",194,6.532091759364418,10.16985041372443
+travis,months with a usable observation: S2 clear only,74,69.81132075471697,
+travis,months with a usable observation: S2 clear + S1,106,100.0,

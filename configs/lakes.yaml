@@ -1,0 +1,55 @@
+# Highland Lakes study configuration.
+# Clip polygons are lon/lat rings drawn by hand around each reservoir from the
+# JRC Global Surface Water max-extent layer; boundaries between lakes follow the
+# dams (Buchanan, Inks, Wirtz/LBJ, Max Starcke/Marble Falls, Mansfield/Travis).
+# `twdb` is the slug used by https://www.waterdatafortexas.org/reservoirs/individual/<slug>.csv
+
+crs: EPSG:32614        # UTM 14N, native CRS of the Sentinel-2/1 tiles here
+resolution: 10         # metres
+zone_buffer_m: 300     # dilation of the JRC max water extent, to allow above-record water
+study_start: "2018-01-01"
+study_end: "2026-10-31"
+train_years: [2018, 2019, 2020, 2021, 2022, 2023]
+test_years: [2024, 2025, 2026]
+
+lakes:
+  buchanan:
+    name: Lake Buchanan
+    twdb: buchanan
+    seed: [-98.43, 30.80]
+    dynamic: true
+    clip: [[-98.52, 30.738], [-98.4175, 30.738], [-98.4175, 30.770], [-98.33, 30.770],
+           [-98.33, 30.930], [-98.52, 30.930], [-98.52, 30.738]]
+  inks:
+    name: Inks Lake
+    twdb: inks
+    seed: [-98.38, 30.745]
+    dynamic: false
+    clip: [[-98.4175, 30.727], [-98.355, 30.727], [-98.355, 30.762], [-98.4175, 30.762],
+           [-98.4175, 30.727]]
+  lbj:
+    name: Lake LBJ
+    twdb: lyndon-b-johnson
+    seed: [-98.37, 30.56]
+    dynamic: false
+    clip: [[-98.48, 30.530], [-98.338, 30.530], [-98.338, 30.670], [-98.48, 30.670],
+           [-98.48, 30.530]]
+  marble_falls:
+    name: Lake Marble Falls
+    twdb: marble-falls
+    seed: [-98.30, 30.556]
+    dynamic: false
+    clip: [[-98.338, 30.540], [-98.2565, 30.540], [-98.2565, 30.575], [-98.338, 30.575],
+           [-98.338, 30.540]]
+  travis:
+    name: Lake Travis
+    twdb: travis
+    seed: [-97.90, 30.405]
+    dynamic: true
+    clip: [[-98.2565, 30.330], [-97.92, 30.330], [-97.92, 30.391], [-97.85, 30.391],
+           [-97.85, 30.590], [-98.2565, 30.590], [-98.2565, 30.330]]
+
+# Leave-one-lake-out folds. Small pass-through lakes are always in training.
+folds:
+  holdout_travis: {test_lake: travis}
+  holdout_buchanan: {test_lake: buchanan}

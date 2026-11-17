@@ -1,0 +1,41 @@
+group,a,b,question,d_iou,d_iou_lo,d_iou_hi,p_a_better,n
+all_heldout,ens_mean,mndwi_tuned,S2 U-Net ensemble vs tuned MNDWI,0.029194429231520824,-0.0003163311554671524,0.06464961053115828,0.973,585
+all_heldout,ens_mean,ndwi_tuned,S2 U-Net ensemble vs tuned NDWI,-0.025533400801063477,-0.042001674406596766,-0.010703915150842765,0.0,585
+all_heldout,ens_mean,ndwi_otsu,S2 U-Net ensemble vs per-scene Otsu on NDWI,-0.025194650250979556,-0.04314611803163838,-0.00949279994794748,0.001,585
+all_heldout,single,mndwi_tuned,S2 U-Net (one seed) vs tuned MNDWI,0.031146790833730953,0.0009345172591015833,0.06695849505672442,0.979,585
+all_heldout,ens_mean,weak_scl_jrc,S2 U-Net vs its own training label,0.03299756892911987,0.014518236186986161,0.053127980126795156,1.0,579
+all_heldout,single,rand_init,MoCo pretraining vs random init (Travis fold),0.002551009275845062,-0.01154750035247988,0.018231840864242014,0.631,318
+all_heldout,single,jrc50_label,per-scene SCL labels vs static JRC labels (Travis fold),0.17528751317446523,0.11004051002925039,0.2414201801694411,1.0,318
+all_heldout,s1,vv_tuned,S1 U-Net vs tuned VV threshold,0.08173398834362722,0.03246375819242064,0.13440424622164024,1.0,457
+all_heldout,s1,vv_otsu,S1 U-Net vs per-scene Otsu on VV,0.06489138938852179,0.027231796577675178,0.106619000869506,1.0,457
+all_heldout,s1,ens_mean,S1 U-Net vs S2 U-Net (same points),-0.020913319456232204,-0.04374915377132989,0.0025142906718306638,0.036,457
+heldout_lake_heldout_time,ens_mean,mndwi_tuned,S2 U-Net ensemble vs tuned MNDWI,0.02490535647016967,-0.012755706994021964,0.06730171857413147,0.872,266
+heldout_lake_heldout_time,ens_mean,ndwi_tuned,S2 U-Net ensemble vs tuned NDWI,-0.03765068781513248,-0.0673707734755364,-0.011171369222241172,0.004,266
+heldout_lake_heldout_time,ens_mean,ndwi_otsu,S2 U-Net ensemble vs per-scene Otsu on NDWI,-0.03769174965611655,-0.07093611979815373,-0.007923150750143533,0.009,266
+heldout_lake_heldout_time,single,mndwi_tuned,S2 U-Net (one seed) vs tuned MNDWI,0.029178037463978956,-0.010846429385534494,0.07420031446465065,0.912,266
+heldout_lake_heldout_time,ens_mean,weak_scl_jrc,S2 U-Net vs its own training label,0.04755572770924443,0.016473671325797988,0.0776111733324032,0.999,264
+heldout_lake_heldout_time,single,rand_init,MoCo pretraining vs random init (Travis fold),0.011365886879712295,0.0,0.03530098366964496,0.632,132
+heldout_lake_heldout_time,single,jrc50_label,per-scene SCL labels vs static JRC labels (Travis fold),0.19138305410994372,0.12230459989434206,0.2678450107021538,1.0,132
+heldout_lake_heldout_time,s1,vv_tuned,S1 U-Net vs tuned VV threshold,0.0642193585414631,0.012836776657328644,0.12033932266493663,0.991,222
+heldout_lake_heldout_time,s1,vv_otsu,S1 U-Net vs per-scene Otsu on VV,0.06667591880010304,0.02255341277916395,0.11396177370459222,1.0,222
+heldout_lake_heldout_time,s1,ens_mean,S1 U-Net vs S2 U-Net (same points),-0.026471982666548932,-0.06643542210473377,0.010884188199305977,0.096,222
+heldout_lake_train_time,ens_mean,mndwi_tuned,S2 U-Net ensemble vs tuned MNDWI,0.037004326251218855,9.784617932901156e-05,0.0913232310911367,0.975,261
+heldout_lake_train_time,ens_mean,ndwi_tuned,S2 U-Net ensemble vs tuned NDWI,-0.011409574545424794,-0.028176158262592843,0.004166849139629298,0.078,261
+heldout_lake_train_time,ens_mean,ndwi_otsu,S2 U-Net ensemble vs per-scene Otsu on NDWI,-0.01139372376754999,-0.02805634986137143,0.00430313893976726,0.083,261
+heldout_lake_train_time,single,mndwi_tuned,S2 U-Net (one seed) vs tuned MNDWI,0.037004326251218855,9.784617932901156e-05,0.0913232310911367,0.975,261
+heldout_lake_train_time,ens_mean,weak_scl_jrc,S2 U-Net vs its own training label,0.019952554851014548,-0.004091788714679032,0.04563280512600443,0.939,259
+heldout_lake_train_time,single,rand_init,MoCo pretraining vs random init (Travis fold),0.00023423244857645464,-0.023509810941849972,0.023213845454802002,0.516,128
+heldout_lake_train_time,single,jrc50_label,per-scene SCL labels vs static JRC labels (Travis fold),0.18374053270430168,0.0637670253600952,0.2962268365133696,1.0,128
+heldout_lake_train_time,s1,vv_tuned,S1 U-Net vs tuned VV threshold,0.11236383350805179,0.03206890530600061,0.19731057684683967,0.998,177
+heldout_lake_train_time,s1,vv_otsu,S1 U-Net vs per-scene Otsu on VV,0.07206913008787852,0.006241553303284184,0.14019800720205083,0.989,177
+heldout_lake_train_time,s1,ens_mean,S1 U-Net vs S2 U-Net (same points),-0.018884934008489562,-0.04416429749927796,0.0025384670160713933,0.058,177
+train_lake_heldout_time,ens_mean,mndwi_tuned,S2 U-Net ensemble vs tuned MNDWI,-0.03237752680449035,-0.06689277328895385,-0.003081929423399979,0.0,58
+train_lake_heldout_time,ens_mean,ndwi_tuned,S2 U-Net ensemble vs tuned NDWI,-0.08021917871845818,-0.16204637379898743,-0.009375606131017853,0.005,58
+train_lake_heldout_time,ens_mean,ndwi_otsu,S2 U-Net ensemble vs per-scene Otsu on NDWI,-0.0701599692790964,-0.1555387825786342,0.011455263019894158,0.061,58
+train_lake_heldout_time,single,mndwi_tuned,S2 U-Net (one seed) vs tuned MNDWI,-0.03237752680449035,-0.06689277328895385,-0.003081929423399979,0.0,58
+train_lake_heldout_time,ens_mean,weak_scl_jrc,S2 U-Net vs its own training label,0.027597833575489394,-0.02648267202620242,0.07665890607954699,0.834,56
+train_lake_heldout_time,single,rand_init,MoCo pretraining vs random init (Travis fold),-0.029390655361029472,-0.06418704734934795,0.0,0.0,58
+train_lake_heldout_time,single,jrc50_label,per-scene SCL labels vs static JRC labels (Travis fold),-0.0013248204223635929,-0.03389239017112932,0.02381682773934222,0.516,58
+train_lake_heldout_time,s1,vv_tuned,S1 U-Net vs tuned VV threshold,-0.05070084847319978,-0.1336013292158199,0.0066374042645250455,0.157,58
+train_lake_heldout_time,s1,vv_otsu,S1 U-Net vs per-scene Otsu on VV,-0.037720028697499464,-0.12667953376529417,0.034864692966459554,0.27,58
+train_lake_heldout_time,s1,ens_mean,S1 U-Net vs S2 U-Net (same points),0.023436070576968615,-0.0033095714305231808,0.05576498694982962,0.895,58
